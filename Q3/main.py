@@ -1,13 +1,10 @@
-import csv
-import pickle
-
 def main():
     try:
-        # csv 파일 읽고 csv.reader로 출력 / 빈 리스트를 만들어서 append 추가
+        # csv 파일 읽고 출력 / 빈 리스트를 만들어서 append 추가
         with open('Mars_Base_Inventory_List.csv', 'r', encoding='utf-8') as f:
-            reader = csv.reader(f)
             inventory_list = []
-            for row in reader:
+            for line in f:
+                row = [col.strip() for col in line.strip().split(',')]
                 print(row)
                 inventory_list.append(row)
 
@@ -32,15 +29,16 @@ def main():
         for row in danger_list:
             print(row)
 
-        # pickle.dump 파이썬 객체 -> 이진 데이터로 변환 후 저장
+        # 문자열로 직렬화 후 이진 데이터로 변환 저장
         with open('Mars_Base_Inventory_List.bin', 'wb') as f:
-            pickle.dump(sorted_list, f)
+            lines = [','.join(row) for row in sorted_list]
+            f.write('\n'.join(lines).encode('utf-8'))
 
-        # 0.7 이상인 인화성 목록 csv 저장 / newline으로 줄바꿈 방지
-        with open('Mar_Base_Inventory_danger.csv', 'w', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
-            writer.writerows(danger_list)
+        # 0.7 이상인 인화성 목록 csv 저장
+        with open('Mar_Base_Inventory_danger.csv', 'w', encoding='utf-8') as f:
+            f.write(','.join(header) + '\n')
+            for row in danger_list:
+                f.write(','.join(row) + '\n')
 
     except FileNotFoundError as e:
         print(f'파일을 찾을 수 없습니다: {e}')
@@ -53,7 +51,8 @@ def read_bin():
     try:
         # bin 파일 출력
         with open('Mars_Base_Inventory_List.bin', 'rb') as f:
-            data = pickle.load(f)
+            content = f.read().decode('utf-8')
+        data = [[col.strip() for col in line.split(',')] for line in content.split('\n') if line]
         for row in data:
             print(row)
     except FileNotFoundError as e:
