@@ -11,9 +11,7 @@ class Calculator(QWidget):
 
     def __init__(self):
         super().__init__()
-        self._expression = ''      # 내부 계산용 수식
         self._display_text = '0'   # 화면 표시용 텍스트
-        self._result = None        # 직전 계산 결과
         self._operator = None      # 현재 선택된 연산자
         self._operand = None       # 첫 번째 피연산자
         self._wait_for_operand = False  # 연산자 직후 새 숫자 입력 대기
@@ -26,13 +24,13 @@ class Calculator(QWidget):
         self.setFixedSize(340, 540)
         self.setStyleSheet('background-color: #000000;')
 
-        layout = QVBoxLayout()
+        layout = QVBoxLayout()  # 세로 방향 레이아웃 객체 생성
         layout.setSpacing(1)
-        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setContentsMargins(10, 10, 10, 10)  # 레이어 상하좌우 여백 각각 10px
 
         # 디스플레이
         self._display = QLabel('0')
-        self._display.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        self._display.setAlignment(Qt.AlignRight | Qt.AlignBottom) # 텍스트 오른쪽 아래 정렬
         self._display.setStyleSheet(
             'color: white;'
             'font-size: 48px;'
@@ -40,13 +38,13 @@ class Calculator(QWidget):
             'padding: 10px 15px;'
             'min-height: 80px;'
         )
-        layout.addWidget(self._display)
+        layout.addWidget(self._display) # 라벨을 세로 레이아웃에 추가
 
         # 버튼 그리드
-        grid = QGridLayout()
+        grid = QGridLayout() # 격자 레이아웃 객체 생성 (버튼 배치)
         grid.setSpacing(8)
 
-        # 아이폰 계산기 버튼 배치 (행 우선)
+        # 아이폰 계산기 버튼 배치 (버튼 텍스트, 행, 열, 종류)
         buttons = [
             ('AC', 0, 0, 'func'), ('+/-', 0, 1, 'func'), ('%', 0, 2, 'func'), ('÷', 0, 3, 'op'),
             ('7', 1, 0, 'num'),   ('8', 1, 1, 'num'),     ('9', 1, 2, 'num'),  ('×', 1, 3, 'op'),
@@ -78,7 +76,7 @@ class Calculator(QWidget):
 
     # ── 버튼 스타일 ────────────────────────────────────────
 
-    @staticmethod
+    @staticmethod # 정적 메서드 self가 필요 x
     def _get_button_style(btn_type):
         '''버튼 종류에 따른 스타일 반환'''
         base = (
@@ -95,13 +93,13 @@ class Calculator(QWidget):
 
     # ── 이벤트 핸들러 ──────────────────────────────────────
 
-    def _make_handler(self, text):
+    def _make_handler(self, text): # 고유한 클릭 함수를 생성하는 팩토리 메서드
         '''버튼 텍스트에 맞는 클릭 핸들러 반환'''
         def handler():
-            self._on_button_click(text)
+            self._on_button_click(text)  # 매개변수 복사
         return handler
 
-    def _on_button_click(self, text):
+    def _on_button_click(self, text): # 모든 버튼 클릭을 처리, 중앙 분기 메서드
         '''버튼 클릭 처리'''
         if text.isdigit():
             self._input_digit(text)
@@ -124,7 +122,7 @@ class Calculator(QWidget):
 
     # ── 숫자 / 소수점 입력 ──────────────────────────────────
 
-    def _input_digit(self, digit):
+    def _input_digit(self, digit):  # 숫자 버튼 호출 메서드
         if self._wait_for_operand:
             self._display_text = digit
             self._wait_for_operand = False
@@ -139,20 +137,20 @@ class Calculator(QWidget):
         if self._wait_for_operand:
             self._display_text = '0.'
             self._wait_for_operand = False
-        elif '.' not in self._display_text:
+        elif '.' not in self._display_text: # 중복 소수점 방지
             self._display_text += '.'
         self._update_display()
 
     # ── 기능 버튼 ──────────────────────────────────────────
 
-    def _clear(self):
+    def _clear(self):  # 'AC' 버튼 처리
         self._display_text = '0'
         self._operator = None
         self._operand = None
         self._wait_for_operand = False
         self._update_display()
 
-    def _toggle_sign(self):
+    def _toggle_sign(self): # 부호 전환 처리
         value = float(self._display_text)
         value = -value
         self._display_text = self._format_number(value)
@@ -175,7 +173,7 @@ class Calculator(QWidget):
             if result is not None:
                 self._display_text = self._format_number(result)
                 self._update_display()
-                self._operand = result
+                self._operand = result # 결과를 피연산자로
             else:
                 self._display_text = 'Error'
                 self._update_display()
@@ -189,7 +187,7 @@ class Calculator(QWidget):
         self._operator = op
         self._wait_for_operand = True
 
-    def _calculate(self):
+    def _calculate(self): # = 처리
         if self._operator is None:
             return
         current = float(self._display_text)
