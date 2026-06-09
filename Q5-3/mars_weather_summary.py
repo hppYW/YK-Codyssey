@@ -185,7 +185,7 @@ def main():
     helper = MySqlHelper(
         host='localhost',
         user='root',
-        password='',
+        password='0328@@',
         port=3306,
     )
 
